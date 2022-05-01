@@ -8,19 +8,19 @@ func (e Error) Error() string {
 	errorBuilder := strings.Builder{}
 	errorBuilder.WriteString(e.Message + " ")
 	if e.Errors.Amount != nil {
-		errorBuilder.WriteString("(amount" + e.Errors.Amount[0] + ")" + "; ")
+		errorBuilder.WriteString("(amount), " + e.Errors.Amount[0] + "; ")
 	}
 	if e.Errors.Domain != nil {
-		errorBuilder.WriteString(e.Errors.Domain[0] + "; ")
+		errorBuilder.WriteString("(domain), " + e.Errors.Domain[0] + "; ")
 	}
 	if e.Errors.Message != "" {
 		errorBuilder.WriteString(e.Errors.Message + "; ")
 	}
 	if e.Errors.PhoneNumber != nil {
-		errorBuilder.WriteString(e.Errors.PhoneNumber[0] + "; ")
+		errorBuilder.WriteString("(phone number), " + e.Errors.PhoneNumber[0] + "; ")
 	}
 	if e.Errors.JuiceUserId != nil {
-		errorBuilder.WriteString("(" + e.Errors.JuiceUserId[0] + " juice user id)" + " ")
+		errorBuilder.WriteString("(juice user id), " + e.Errors.JuiceUserId[0] + " ")
 	}
 	return strings.ToLower(strings.Trim(errorBuilder.String(), ";. "))
 }
