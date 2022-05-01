@@ -269,7 +269,7 @@ func TestClient_UpdateAccount(t *testing.T) {
 			},
 			want:    AccountResp{},
 			wantErr: true,
-			errMsg:  "unprocessable entity this field must be a valid url",
+			errMsg:  "unprocessable entity (domain), this field must be a valid url",
 		},
 	}
 	for _, tt := range tests {
@@ -286,6 +286,175 @@ func TestClient_UpdateAccount(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("UpdateAccount() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestClient_GetFloat(t *testing.T) {
+	tests := []struct {
+		name           string
+		mockHttpClient MockHttpClient
+		want           BalanceResp
+		wantErr        bool
+	}{
+		{
+			name: "Allow an integrator get their float balance (Success)",
+			mockHttpClient: MockHttpClient{
+				DoFunc: func(r *http.Request) (*http.Response, error) {
+					if r.URL.Path != "/card-integrators/float" {
+						t.Errorf("Expected to request '/card-integrators/float', got: %s", r.URL.Path)
+					}
+					if r.Header.Get("Content-Type") != "application/json" {
+						t.Errorf("Expected Accept: application/json header, got: %s", r.Header.Get("Accept"))
+					}
+					responseBody := ioutil.NopCloser(bytes.NewReader([]byte(
+						`{
+							"balance":4445110,
+							"currency":"USD",
+							"id":"cdda21c2-7435-4d8c-a612-dcbad40f50d4"
+						}`,
+					)))
+					return &http.Response{
+						StatusCode: 200,
+						Body:       responseBody,
+					}, nil
+				},
+				Timeout: 0,
+			},
+			want: BalanceResp{
+				Balance:  4445110,
+				Currency: "USD",
+				Id:       "cdda21c2-7435-4d8c-a612-dcbad40f50d4",
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cl.SetHTTPClient(&tt.mockHttpClient)
+			got, err := cl.GetFloat()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetFloat() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GetFloat() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestClient_topUpFloat(t *testing.T) {
+	type args struct {
+		amount int
+	}
+	tests := []struct {
+		name           string
+		mockHttpClient MockHttpClient
+		args           args
+		want           TopUpFloatResp
+		wantErr        bool
+		errMsg         string
+	}{
+		{
+			name: "Top up your float balance.",
+			mockHttpClient: MockHttpClient{
+				DoFunc: func(r *http.Request) (*http.Response, error) {
+					if r.URL.Path != "/card-integrators/top-up-float" {
+						t.Errorf("Expected to request '/card-integrators/top-up-float', got: %s", r.URL.Path)
+					}
+					if r.Header.Get("Content-Type") != "application/json" {
+						t.Errorf("Expected Accept: application/json header, got: %s", r.Header.Get("Accept"))
+					}
+					responseBody := ioutil.NopCloser(bytes.NewReader([]byte(
+						`{
+							"message":"Balance updated successfully"
+						}`,
+					)))
+					return &http.Response{
+						StatusCode: 200,
+						Body:       responseBody,
+					}, nil
+				},
+				Timeout: 0,
+			},
+			args: args{
+				amount: 500000,
+			},
+			want: TopUpFloatResp{
+				Message: "Balance updated successfully",
+			},
+		},
+		{
+			name: "Top up float (error; too big top up value)",
+			mockHttpClient: MockHttpClient{
+				DoFunc: func(r *http.Request) (*http.Response, error) {
+					if r.URL.Path != "/card-integrators/top-up-float" {
+						t.Errorf("Expected to request '/card-integrators/top-up-float', got: %s", r.URL.Path)
+					}
+					if r.Header.Get("Content-Type") != "application/json" {
+						t.Errorf("Expected Accept: application/json header, got: %s", r.Header.Get("Accept"))
+					}
+					responseBody := ioutil.NopCloser(bytes.NewReader([]byte(
+						`{"errors":{"amount":["This field must be less than or equal 2000000."]},"message":"Unprocessable entity"}`,
+					)))
+					return &http.Response{
+						StatusCode: 422,
+						Body:       responseBody,
+					}, nil
+				},
+				Timeout: 0,
+			},
+			args: args{
+				amount: 5000000000,
+			},
+			want:    TopUpFloatResp{},
+			wantErr: true,
+			errMsg:  "unprocessable entity (amount), this field must be less than or equal 2000000",
+		},
+		{
+			name: "Top up float (error; too small top up value)",
+			mockHttpClient: MockHttpClient{
+				DoFunc: func(r *http.Request) (*http.Response, error) {
+					if r.URL.Path != "/card-integrators/top-up-float" {
+						t.Errorf("Expected to request '/card-integrators/top-up-float', got: %s", r.URL.Path)
+					}
+					if r.Header.Get("Content-Type") != "application/json" {
+						t.Errorf("Expected Accept: application/json header, got: %s", r.Header.Get("Accept"))
+					}
+					responseBody := ioutil.NopCloser(bytes.NewReader([]byte(
+						`{"errors":{"amount":["This field must be at least 500000."]},"message":"Unprocessable entity"}`,
+					)))
+					return &http.Response{
+						StatusCode: 422,
+						Body:       responseBody,
+					}, nil
+				},
+				Timeout: 0,
+			},
+			args: args{
+				amount: 422,
+			},
+			want:    TopUpFloatResp{},
+			wantErr: true,
+			errMsg:  "unprocessable entity (amount), this field must be at least 500000",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cl.SetHTTPClient(&tt.mockHttpClient)
+			got, err := cl.TopUpFloat(tt.args.amount)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("TopUpFloat() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if err != nil && err.Error() != tt.errMsg {
+				t.Errorf("TopUpFloat() actual error = %v, expected error %v", err, tt.errMsg)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("TopUpFloat() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
