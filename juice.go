@@ -99,6 +99,21 @@ func (cl *Client) UpdateAccount(webhook, businessAddress, domain string) (Accoun
 	return res, err
 }
 
+// TopUpFloat allows an integrator to top up float balance.
+//This endpoint is only available in the sandbox environment.
+func (cl *Client) TopUpFloat(amount int) (TopUpFloatResp, error) {
+	var res TopUpFloatResp
+	err := cl.patch("/card-integrators/top-up-float", &TopUpFloatData{amount}, &res)
+	return res, err
+}
+
+// GetFloat allows an integrator get their float balance
+func (cl *Client) GetFloat() (BalanceResp, error) {
+	var res BalanceResp
+	err := cl.get("/card-integrators/float", nil, &res)
+	return res, err
+}
+
 // RegisterUser creates an account for user requesting a card
 func (cl *Client) RegisterUser(data RegisterUserData, accountId string) (UserResp, error) {
 	var res UserResp

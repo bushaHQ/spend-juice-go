@@ -60,6 +60,10 @@ type AccountResp struct {
 	Data Account `json:"data"`
 }
 
+type TopUpFloatData struct {
+	Amount int `json:"amount"`
+}
+
 type UsersResp struct {
 	Page       int    `json:"page"`
 	Total      int    `json:"total"`
@@ -96,4 +100,14 @@ type TransactionsResp struct {
 	Data     []Transaction `json:"data"`
 	Message  string        `json:"message"`
 	NextPage interface{}   `json:"next_page"`
+}
+
+type BalanceResp struct {
+	Balance  int    `json:"balance"`
+	Currency string `json:"currency"`
+	Id       string `json:"id"`
+}
+
+type TopUpFloatResp struct {
+	Message string `json:"message"`
 }
