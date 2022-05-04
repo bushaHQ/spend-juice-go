@@ -101,8 +101,8 @@ func (cl *Client) UpdateAccount(webhook, businessAddress, domain string) (Accoun
 
 // TopUpFloat allows an integrator to top up float balance.
 //This endpoint is only available in the sandbox environment.
-func (cl *Client) TopUpFloat(amount int) (TopUpFloatResp, error) {
-	var res TopUpFloatResp
+func (cl *Client) TopUpFloat(amount int) (Resp, error) {
+	var res Resp
 	err := cl.patch("/card-integrators/top-up-float", &TopUpFloatData{amount}, &res)
 	return res, err
 }
@@ -188,6 +188,13 @@ func (cl *Client) ListTransactions(cardId string, param Param) (TransactionsResp
 func (cl *Client) GetTransaction(trxId string) (TransactionResp, error) {
 	var res TransactionResp
 	err := cl.get(fmt.Sprintf("/cards/transaction/%s", trxId), nil, &res)
+	return res, err
+}
+
+//MockTransaction mocks card transaction. This endpoint is only available in the sandbox environment.
+func (cl *Client) MockTransaction(data MockTransactionData, cardId string) (Resp, error) {
+	var res Resp
+	err := cl.post(fmt.Sprintf("/cards/%s/mock-transaction", cardId), data, &res)
 	return res, err
 }
 

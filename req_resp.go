@@ -56,6 +56,11 @@ type PaymentData struct {
 	CardId string `json:"card_id"`
 }
 
+type MockTransactionData struct {
+	Amount int    `json:"amount"`
+	Type   string `json:"type"`
+}
+
 type AccountResp struct {
 	Data Account `json:"data"`
 }
@@ -108,6 +113,6 @@ type BalanceResp struct {
 	Id       string `json:"id"`
 }
 
-type TopUpFloatResp struct {
+type Resp struct {
 	Message string `json:"message"`
 }
