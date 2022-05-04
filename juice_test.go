@@ -353,7 +353,7 @@ func TestClient_topUpFloat(t *testing.T) {
 		name           string
 		mockHttpClient MockHttpClient
 		args           args
-		want           TopUpFloatResp
+		want           Resp
 		wantErr        bool
 		errMsg         string
 	}{
@@ -382,7 +382,7 @@ func TestClient_topUpFloat(t *testing.T) {
 			args: args{
 				amount: 500000,
 			},
-			want: TopUpFloatResp{
+			want: Resp{
 				Message: "Balance updated successfully",
 			},
 		},
@@ -409,7 +409,7 @@ func TestClient_topUpFloat(t *testing.T) {
 			args: args{
 				amount: 5000000000,
 			},
-			want:    TopUpFloatResp{},
+			want:    Resp{},
 			wantErr: true,
 			errMsg:  "unprocessable entity (amount), this field must be less than or equal 2000000",
 		},
@@ -436,7 +436,7 @@ func TestClient_topUpFloat(t *testing.T) {
 			args: args{
 				amount: 422,
 			},
-			want:    TopUpFloatResp{},
+			want:    Resp{},
 			wantErr: true,
 			errMsg:  "unprocessable entity (amount), this field must be at least 500000",
 		},
@@ -1463,6 +1463,69 @@ func TestClient_GetTransaction(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("GetTransaction() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestClient_MockTransaction(t *testing.T) {
+	type args struct {
+		data MockTransactionData
+		id   string
+	}
+	tests := []struct {
+		name           string
+		mockHttpClient MockHttpClient
+		args           args
+		want           Resp
+		wantErr        bool
+	}{
+		{
+			name: "mock card transaction (Success)",
+			mockHttpClient: MockHttpClient{
+				DoFunc: func(r *http.Request) (*http.Response, error) {
+					if r.URL.Path != "/cards/fbea1aa0-d698-41c5-8372-5c08576d605e/mock-transaction" {
+						t.Errorf("Expected to request '/cards/fbea1aa0-d698-41c5-8372-5c08576d605e/mock-transaction', got: %s", r.URL.Path)
+					}
+					if r.Header.Get("Content-Type") != "application/json" {
+						t.Errorf("Expected Accept: application/json header, got: %s", r.Header.Get("Accept"))
+					}
+					responseBody := ioutil.NopCloser(bytes.NewReader([]byte(
+						`{
+						  "message": "Ok"
+						}`,
+					)))
+					return &http.Response{
+						StatusCode: 200,
+						Body:       responseBody,
+					}, nil
+				},
+				Timeout: 0,
+			},
+			args: args{
+				MockTransactionData{
+					Amount: 20000,
+					Type:   "deduct-reversal",
+				},
+				"fbea1aa0-d698-41c5-8372-5c08576d605e",
+			},
+
+			want: Resp{
+				Message: "Ok",
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cl.SetHTTPClient(&tt.mockHttpClient)
+			got, err := cl.MockTransaction(tt.args.data, tt.args.id)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("MockTransaction() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("MockTransaction() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
