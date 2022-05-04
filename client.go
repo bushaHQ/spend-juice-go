@@ -61,6 +61,9 @@ func (cl *Client) SetHTTPClient(httpClient HTTPClient) {
 // SetBaseURL overrides the default base URL. For internal use.
 func (cl *Client) SetBaseURL(baseURL string) {
 	cl.baseURL = strings.TrimRight(baseURL, "/")
+	if !strings.HasPrefix(cl.baseURL, "Bearer") {
+		cl.baseURL = "Bearer " + cl.apiKey
+	}
 }
 
 //SetAPIVersion overrides the default base URL. For internal use.
