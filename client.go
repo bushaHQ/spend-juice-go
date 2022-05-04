@@ -49,7 +49,12 @@ func (cl *Client) SetAuth(apiKey string) error {
 		return er.New("juice: no credentials provided")
 	}
 
+	if !strings.HasPrefix(apiKey, "Bearer ") {
+		apiKey = "Bearer " + apiKey
+	}
+
 	cl.apiKey = apiKey
+
 	return nil
 }
 
