@@ -125,7 +125,7 @@ func (cl *Client) post(path string, params interface{}, response interface{}) (e
 	}
 
 	if cl.debug {
-		log.Printf("juice: Call: %s %s", "POST", path)
+		log.Printf("juice: Call: %s %s", "POST", url)
 		log.Printf("juice: Request Params: %#v", params)
 	}
 
