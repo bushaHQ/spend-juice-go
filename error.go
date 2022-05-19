@@ -1,37 +1,20 @@
 package juice
 
 import (
+	"fmt"
 	"strings"
 )
 
 func (e Error) Error() string {
 	errorBuilder := strings.Builder{}
 	errorBuilder.WriteString(e.Message + " ")
-	if e.Errors.Amount != nil {
-		errorBuilder.WriteString("(amount), " + e.Errors.Amount[0] + "; ")
-	}
-	if e.Errors.Domain != nil {
-		errorBuilder.WriteString("(domain), " + e.Errors.Domain[0] + "; ")
-	}
-	if e.Errors.Message != "" {
-		errorBuilder.WriteString(e.Errors.Message + "; ")
-	}
-	if e.Errors.PhoneNumber != nil {
-		errorBuilder.WriteString("(phone number), " + e.Errors.PhoneNumber[0] + "; ")
-	}
-	if e.Errors.JuiceUserId != nil {
-		errorBuilder.WriteString("(juice user id), " + e.Errors.JuiceUserId[0] + " ")
+	if e.Errors != nil {
+		errorBuilder.WriteString(fmt.Sprintf("%v", e.Errors) + "; ")
 	}
 	return strings.ToLower(strings.Trim(errorBuilder.String(), ";. "))
 }
 
 type Error struct {
-	Errors struct {
-		Message     string   `json:"message"`
-		Amount      []string `json:"amount"`
-		Domain      []string `json:"domain"`
-		PhoneNumber []string `json:"phone_number"`
-		JuiceUserId []string `json:"juice_user_id"`
-	} `json:"errors"`
-	Message string `json:"message"`
+	Errors  interface{} `json:"errors"`
+	Message string      `json:"message"`
 }
