@@ -36,8 +36,8 @@ type RegisterUserData struct {
 }
 
 type Param struct {
-	Limit int
-	Page  int
+	Limit int `url:",omitempty"`
+	Page  int `url:",omitempty"`
 }
 
 type CreateCardData struct {
