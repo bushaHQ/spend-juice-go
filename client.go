@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	defaultBaseURL = "https://sandbox.spendjuice.com"
+	defaultBaseURL = "https://api-sandbox.spendjuice.com"
 	defaultTimeout = 60 * time.Second
 )
 
