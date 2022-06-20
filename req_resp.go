@@ -46,7 +46,7 @@ type CreateCardData struct {
 	Source           string `json:"source"`
 	CardIntegratorId string `json:"card_integrator_id"`
 	Currency         string `json:"currency"`
-	JuiceUserId      string `json:"juice_user_id"`
+	UserId           string `json:"user_id"`
 	Validity         int    `json:"validity"`
 }
 

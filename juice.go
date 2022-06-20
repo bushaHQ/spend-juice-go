@@ -138,7 +138,7 @@ func (cl *Client) CreateCard(data CreateCardData) (CreateCardResp, error) {
 // ListCards gets a list of cards of a user
 func (cl *Client) ListCards(limit, page int, userId string) ([]CardResp, error) {
 	var res []CardResp
-	err := cl.get(fmt.Sprintf("/cards?juice_user_id=%s&limit=%d&page=%d", userId, limit, page), nil, &res)
+	err := cl.get(fmt.Sprintf("/cards?user_id=%s&limit=%d&page=%d", userId, limit, page), nil, &res)
 	return res, err
 }
 
