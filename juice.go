@@ -76,10 +76,7 @@ type Transaction struct {
 	CardBalanceBefore int         `json:"card_balance_before"`
 	ConversionRate    int         `json:"conversion_rate"`
 	CreatedAt         time.Time   `json:"created_at"`
-	CreditCurrency    interface{} `json:"credit_currency"`
-	CreditId          interface{} `json:"credit_id"`
-	DebitCurrency     interface{} `json:"debit_currency"`
-	DebitId           interface{} `json:"debit_id"`
+	Currency          string      `json:"currency"`
 	Id                string      `json:"id"`
 	Narrative         interface{} `json:"narrative"`
 	Type              string      `json:"type"`
